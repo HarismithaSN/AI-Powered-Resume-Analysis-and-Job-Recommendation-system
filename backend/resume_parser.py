@@ -9,6 +9,8 @@ import docx
 from utils.database import (
     update_user,
     save_resume_analysis,
+    get_resume_analysis_by_user,
+    delete_resume_analysis,
 )
 
 
@@ -105,3 +107,31 @@ def handle_resume_upload(user_id: int, uploaded_file) -> dict:
         "extracted_text": extracted_text,
         "analysis_id": analysis_result.get("analysis_id"),
     }
+
+
+# -----------------------------
+# Delete resume & related analysis
+# -----------------------------
+def delete_resume_for_user(user_id: int, resume_path: str | None) -> dict:
+    """
+    - Deletes resume file from disk (if exists)
+    - Clears users.resume_file_path
+    - Deletes all resume_analysis rows for this user
+    """
+    # 1) Delete file from disk
+    if resume_path and os.path.exists(resume_path):
+        try:
+            os.remove(resume_path)
+        except OSError as e:
+            # Not critical but reportable
+            return {"success": False, "error": f"Failed to delete file: {e}"}
+
+    # 2) Clear path in users table
+    update_user(user_id, resume_file_path=None)
+
+    # 3) Delete all analysis rows for this user
+    analyses = get_resume_analysis_by_user(user_id)
+    for a in analyses:
+        delete_resume_analysis(a["analysis_id"])
+
+    return {"success": True}

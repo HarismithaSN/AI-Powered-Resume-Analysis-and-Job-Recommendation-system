@@ -95,6 +95,22 @@ def render_profile():
             key="profile_grad_year",
             placeholder="e.g., 2026",
         )
+    
+    col3, col4 = st.columns(2)
+    with col3:
+        current_role = st.text_input(
+            "Current Role",
+            value=user.get("current_role") or "",
+            key="profile_role",
+            placeholder="e.g., Student / Software Engineer"
+        )
+    with col4:
+        exp_years = st.text_input(
+            "Years of Experience",
+            value=user.get("experience_years") or "",
+            key="profile_exp",
+            placeholder="e.g., 2 Years"
+        )
 
     col_btn1, col_btn2 = st.columns([1.2, 3])
     with col_btn1:
@@ -105,12 +121,16 @@ def render_profile():
                 college_name=college.strip() or None,
                 course=course.strip() or None,
                 graduation_year=grad_year.strip() or None,
+                current_role=current_role.strip() or None,
+                experience_years=exp_years.strip() or None,
             )
             if res["success"]:
                 user["name"] = new_name.strip()
                 user["college_name"] = college.strip() or None
                 user["course"] = course.strip() or None
                 user["graduation_year"] = grad_year.strip() or None
+                user["current_role"] = current_role.strip() or None
+                user["experience_years"] = exp_years.strip() or None
                 st.session_state["user"] = user
                 st.success("Profile updated successfully!")
             else:

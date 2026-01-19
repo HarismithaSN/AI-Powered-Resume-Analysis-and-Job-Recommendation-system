@@ -13,7 +13,7 @@ EMAIL_REGEX = re.compile(r"^[\w\.-]+@[\w\.-]+\.\w{2,}$")
 URL_REGEX = re.compile(
     r'^(https?:\/\/)?'
     r'([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}'
-    r'(\/[\w\-\._~:\/?#[\]@!$&\'()*+,;=]*)?$'
+    r'(\/[\w\-\._~:\/?#[\]@!$&\'()*+,;=%]*)?$'
 )
 
 def is_valid_email(email: str) -> bool:
@@ -72,6 +72,8 @@ for col_def in [
     "college_name TEXT",
     "course TEXT",
     "graduation_year TEXT",
+    "current_role TEXT",
+    "experience_years TEXT"
 ]:
     col_name = col_def.split()[0]
     try:
@@ -82,6 +84,32 @@ for col_def in [
             cur.execute(f"ALTER TABLE users ADD COLUMN {col_def}")
     except _sqlite3.OperationalError:
         # Ignore if something fails; table will be recreated only in dev
+        pass
+
+for col_def in [
+    "posted_date TEXT",
+    "posted_date TEXT",
+    "salary_range TEXT",
+    "applicants_count TEXT",
+    "required_skills TEXT", 
+    "job_type TEXT",
+    "matching_skills TEXT",
+    "missing_skills TEXT",
+    "analysis_summary TEXT",
+    "component_scores TEXT",
+    "status TEXT"
+]:
+    col_name = col_def.split()[0]
+    try:
+        # Check if column already exists
+        cur.execute("PRAGMA table_info(job_recommendations)")
+        rows = cur.fetchall()
+        # If table doesn't exist yet, fetchall returns empty list, loop won't run, which is fine
+        if rows:
+            existing_cols = [r[1] for r in rows]
+            if col_name not in existing_cols:
+                cur.execute(f"ALTER TABLE job_recommendations ADD COLUMN {col_def}")
+    except _sqlite3.OperationalError:
         pass
 
 
@@ -111,6 +139,12 @@ CREATE TABLE IF NOT EXISTS job_recommendations (
     job_url TEXT,
     match_percentage REAL,
     scraping_date TEXT,
+    posted_date TEXT,
+    salary_range TEXT,
+    applicants_count TEXT,
+    required_skills TEXT,
+    job_type TEXT,
+    status TEXT DEFAULT 'new',
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 )
 """)
@@ -133,6 +167,8 @@ def create_user(
     college_name: str = None,
     course: str = None,
     graduation_year: str = None,
+    current_role: str = None,
+    experience_years: str = None,
 ) -> dict:
     if not name or not name.strip():
         return {"success": False, "error": "Name is required."}
@@ -149,8 +185,8 @@ def create_user(
             """
             INSERT INTO users
             (name, email, hashed_password, registration_date,
-             resume_file_path, college_name, course, graduation_year)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+             resume_file_path, college_name, course, graduation_year, current_role, experience_years)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 name.strip(),
@@ -161,6 +197,8 @@ def create_user(
                 (college_name or "").strip() or None,
                 (course or "").strip() or None,
                 (graduation_year or "").strip() or None,
+                (current_role or "").strip() or None,
+                (experience_years or "").strip() or None,
             ),
         )
         conn.commit()
@@ -172,7 +210,7 @@ def get_user_by_email(email: str):
     cur.execute(
         """
         SELECT user_id, name, email, registration_date,
-               resume_file_path, college_name, course, graduation_year
+               resume_file_path, college_name, course, graduation_year, current_role, experience_years
         FROM users WHERE email = ?
         """,
         (email.strip().lower(),),
@@ -189,6 +227,8 @@ def get_user_by_email(email: str):
         "college_name",
         "course",
         "graduation_year",
+        "current_role",
+        "experience_years"
     )
     return dict(zip(keys, row))
 
@@ -222,9 +262,10 @@ def update_user(user_id: int, **fields):
     allowed = {
         "name",
         "resume_file_path",
-        "college_name",
         "course",
         "graduation_year",
+        "current_role",
+        "experience_years",
     }
     updates = []
     params = []
@@ -352,6 +393,15 @@ def save_job_recommendation(
     job_url: str,
     match_percentage: float,
     scraping_date: str = None,
+    posted_date: str = None,
+    salary_range: str = None,
+    applicants_count: str = None,
+    required_skills: list = None,
+    job_type: str = None,
+    matching_skills: list = None,
+    missing_skills: list = None,
+    analysis_summary: str = None,
+    component_scores: dict = None
 ) -> dict:
     cur.execute("SELECT 1 FROM users WHERE user_id = ?", (user_id,))
     if cur.fetchone() is None:
@@ -372,8 +422,10 @@ def save_job_recommendation(
         """
         INSERT INTO job_recommendations
         (user_id, job_title, company_name, location, job_description,
-         job_url, match_percentage, scraping_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         job_url, match_percentage, scraping_date, posted_date, salary_range, 
+         applicants_count, required_skills, job_type, matching_skills, 
+         missing_skills, analysis_summary, component_scores, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             user_id,
@@ -384,6 +436,16 @@ def save_job_recommendation(
             job_url,
             match_percentage,
             scraping_date,
+            posted_date,
+            salary_range,
+            applicants_count,
+            json.dumps(required_skills or []),
+            job_type,
+            json.dumps(matching_skills or []),
+            json.dumps(missing_skills or []),
+            json.dumps(analysis_summary or ""),
+            json.dumps(component_scores or {}),
+            "new"
         ),
     )
     conn.commit()
@@ -400,21 +462,30 @@ def get_recommended_jobs(user_id: int, min_match: float = 0.0):
     )
     rows = cur.fetchall()
     results = []
+    
+    # Get column names dynamically to handle schema evolution safer
+    col_names = [description[0] for description in cur.description]
+    
     for r in rows:
-        results.append(
-            {
-                "job_id": r[0],
-                "user_id": r[1],
-                "job_title": r[2],
-                "company_name": r[3],
-                "location": r[4],
-                "job_description": r[5],
-                "job_url": r[6],
-                "match_percentage": r[7],
-                "scraping_date": r[8],
-            }
-        )
+        row_dict = dict(zip(col_names, r))
+        
+        # Parse JSON fields safely
+        for json_field in ['required_skills', 'matching_skills', 'missing_skills', 'component_scores']:
+            if row_dict.get(json_field):
+                try:
+                    row_dict[json_field] = json.loads(row_dict[json_field])
+                except Exception:
+                    row_dict[json_field] = [] if json_field != 'component_scores' else {}
+            else:
+                 row_dict[json_field] = [] if json_field != 'component_scores' else {}
+
+        results.append(row_dict)
     return results
+
+def update_job_status(job_id: int, status: str):
+    cur.execute("UPDATE job_recommendations SET status = ? WHERE job_id = ?", (status, job_id))
+    conn.commit()
+    return {"success": True}
 
 def delete_job_recommendation(job_id: int):
     cur.execute("DELETE FROM job_recommendations WHERE job_id = ?", (job_id,))

@@ -10,97 +10,146 @@ from utils.database import (
 
 def render_dashboard():
     user = require_login()
-
-    # Header card
-    st.markdown(
-        f"""
-        <div class="glass-card">
-          <div style="display:flex; align-items:center; gap:1rem;">
-            <div style="
-                width:56px; height:56px; border-radius:50%;
-                background:linear-gradient(135deg,#4f46e5,#22c55e);
-                display:flex; align-items:center; justify-content:center;
-                font-size:1.5rem; font-weight:700; color:white;">
-                {user['name'][:1].upper()}
-            </div>
-            <div>
-              <h2 style="margin-bottom:0.1rem;">Welcome back, {user['name']} 👋</h2>
-              <p style="margin:0; color:#cbd5f5; font-size:0.9rem;">
-                Check your resume status and job matches.
-              </p>
-            </div>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.write("")
-
+    
+    # Check status
+    resume_uploaded = bool(user.get("resume_file_path"))
     analyses = get_resume_analysis_by_user(user["user_id"])
     jobs = get_recommended_jobs(user["user_id"], min_match=0.0)
+    
+    last_analysis_status = "Completed" if analyses else "Pending"
+    job_match_count = len(jobs)
+    
+    # --- Header ---
+    st.markdown(f"# Welcome, {user['name']} 👋")
+    
+    # --- Quick Stats ---
+    st.markdown("### 📊 Quick Stats")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    # CSS for the blue stats cards
+    card_style = """
+        background: linear-gradient(180deg, #0056b3 0%, #004494 100%);
+        border-radius: 12px;
+        padding: 20px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    """
+    
+    with col1:
+        st.markdown(
+            f"""
+            <div style="{card_style}">
+                <div style="font-size: 1rem; opacity: 0.9; margin-bottom: 5px;">📄 Resume Uploaded</div>
+                <div style="font-size: 1.5rem; font-weight: bold;">{'Yes' if resume_uploaded else 'No'}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+    with col2:
+        st.markdown(
+            f"""
+            <div style="{card_style}">
+                <div style="font-size: 1rem; opacity: 0.9; margin-bottom: 5px;">🔴 Last Analysis</div>
+                <div style="font-size: 1.5rem; font-weight: bold;">{last_analysis_status}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-    resume_uploaded = bool(user.get("resume_file_path"))
-    last_analysis = analyses[0]["analysis_timestamp"] if analyses else "No analysis yet"
-    num_jobs = len(jobs)
+    with col3:
+        st.markdown(
+            f"""
+            <div style="{card_style}">
+                <div style="font-size: 1rem; opacity: 0.9; margin-bottom: 5px;">💼 Job Matches</div>
+                <div style="font-size: 1.5rem; font-weight: bold;">{job_match_count}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-    tab_overview, tab_resume, tab_jobs = st.tabs(
-        ["📊 Overview", "📄 Resume & Analysis", "💼 Jobs"]
-    )
+    st.markdown("---")
 
-    # ---------- OVERVIEW ----------
-    with tab_overview:
-        st.subheader("Quick stats")
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.metric("Resume Uploaded", "Yes" if resume_uploaded else "No")
-        with c2:
-            st.metric("Last Analysis", last_analysis)
-        with c3:
-            st.metric("Job Recommendations", num_jobs)
+    # --- Recent Activity ---
+    st.markdown("### 🕒 Recent Activity")
+    
+    # Simulate activity items based on state
+    activity_html = """<div style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; color: #1e293b;">"""
+    
+    # Item 1: Resume Uploaded
+    if resume_uploaded:
+        activity_html += """
+<div style="margin-bottom: 10px; display: flex; align-items: center;">
+    <span style="font-weight: bold; margin-right: 10px;">•</span> ✔ Resume uploaded
+</div>
+"""
+    else:
+        activity_html += """
+<div style="margin-bottom: 10px; display: flex; align-items: center; color: #94a3b8;">
+    <span style="font-weight: bold; margin-right: 10px;">•</span> ⏳ Resume not yet uploaded
+</div>
+"""
 
-        st.write("")
-        if analyses:
-            st.info("Your latest resume has been analyzed. Check the Resume tab.")
-        else:
-            st.warning("No analysis yet. Upload your resume to get started!")
+    # Item 2: Analysis Viewed
+    if analyses:
+        activity_html += """
+<div style="margin-bottom: 10px; display: flex; align-items: center;">
+    <span style="font-weight: bold; margin-right: 10px;">•</span> 📊 Analysis viewed
+</div>
+"""
+    else:
+        activity_html += """
+<div style="margin-bottom: 10px; display: flex; align-items: center; color: #94a3b8;">
+    <span style="font-weight: bold; margin-right: 10px;">•</span> ⏳ Analysis pending
+</div>
+"""
 
-    # ---------- RESUME ----------
-    with tab_resume:
-        st.subheader("Resume & Analysis")
+    # Item 3: Job Suggestions
+    if jobs:
+        activity_html += """
+<div style="display: flex; align-items: center;">
+    <span style="font-weight: bold; margin-right: 10px;">•</span> 💼 Job suggestions opened
+</div>
+"""
+    else:
+        activity_html += """
+<div style="display: flex; align-items: center; color: #94a3b8;">
+    <span style="font-weight: bold; margin-right: 10px;">•</span> ⏳ No jobs found yet
+</div>
+"""
+        
+    activity_html += "</div>"
+    
+    st.markdown(activity_html, unsafe_allow_html=True)
+    
+    st.markdown("---")
 
-        if not resume_uploaded:
-            st.warning("No resume uploaded yet. Use **Upload Resume** in the sidebar.")
-        else:
-            st.success("Resume uploaded ✔")
-            st.write(f"Path: `{user['resume_file_path']}`")
+    # --- Quick Actions ---
+    st.markdown("### 🚀 Quick Actions")
+    
+    qa_col1, qa_col2, qa_col3 = st.columns(3)
+    
+    # Helper to create buttons that navigate
+    def action_button(col, title, subtitle, target_page):
+        with col:
+            # We use a button that updates session state to navigate
+            # To make it look like the card in the screenshot, we might just use a button
+            # But standard streamlit buttons are simple. 
+            # We will use st.button and if clicked, change state.
+            
+            # Use a container for visual grouping (optional, streamlit columns are already containers)
+            if st.button(f"{title}\n\n{subtitle}", use_container_width=True, key=title):
+                st.session_state["current_page"] = target_page
+                st.rerun()
 
-        if analyses:
-            st.markdown("### Latest extracted text")
-            latest = analyses[0]
-            with st.expander("Show extracted resume text"):
-                st.text(latest["extracted_resume_text"])
-        else:
-            st.info("No analysis data available yet.")
+    action_button(qa_col1, "📤 Upload Resume", "Start your analysis", "Upload Resume")
+    action_button(qa_col2, "📊 Resume Analysis", "View strengths & weaknesses", "Resume Analysis")
+    action_button(qa_col3, "✅ Resume Score", "Check ATS score", "Resume Scoring")
 
-    # ---------- JOBS ----------
-    with tab_jobs:
-        st.subheader("Job recommendations")
-
-        if not jobs:
-            st.info("No job recommendations yet. This will be added in later milestones.")
-        else:
-            min_match = st.slider("Minimum match %", 0, 100, 60)
-            filtered = [j for j in jobs if j["match_percentage"] >= min_match]
-
-            if not filtered:
-                st.warning("No jobs above this match threshold.")
-            else:
-                for job in filtered:
-                    st.markdown(
-                        f"**{job['job_title']}** at **{job['company_name']}** "
-                        f"({job['location']}) — `Match: {job['match_percentage']}%`"
-                    )
-                    st.write(job["job_description"][:250] + "...")
-                    if job["job_url"]:
-                        st.markdown(f"[View details]({job['job_url']})")
-                    st.write("---")

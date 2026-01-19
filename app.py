@@ -5,7 +5,11 @@ from frontend.login import render_login
 from frontend.registration import render_registration
 from frontend.dashboard import render_dashboard
 from frontend.upload_resume import render_upload_resume
+from frontend.job_recommendations import render_job_recommendations
 from frontend.profile import render_profile
+from frontend.analysis import render_analysis
+from frontend.skills_gap import render_skills_gap
+from frontend.job_preferences import render_job_preferences
 from backend.auth import is_logged_in, get_current_user
 
 
@@ -52,7 +56,8 @@ def inject_custom_css():
             border-radius: 1.7rem;
             padding: 1.8rem 2.0rem;
             border: 1px solid rgba(148,163,184,0.45);
-            box-shadow: 0 20px 45px rgba(15,23,42,0.95);
+            box-shadow: 0 20px 45px rg
+            ba(15,23,42,0.95);
         }
 
         h1, h2, h3 {
@@ -82,8 +87,14 @@ def main():
         "Login": render_login,
         "Register": render_registration,
         "Dashboard": render_dashboard,
+        "My Profile": render_profile,
         "Upload Resume": render_upload_resume,
-        "Profile": render_profile,
+        "Resume Analysis": render_analysis,
+        "Skills Gap": render_skills_gap,    # Now mapping to the real Skills Gap page
+        "Resume Scoring": render_analysis,  # Mapping to Analysis for now
+        "Job Preferences": render_job_preferences,
+        "Job Recommendations": render_job_recommendations,
+        "Suggestions": render_analysis, # Mapping to Analysis/Suggestions view
     }
 
     # === SIDEBAR NAVIGATION ===
@@ -91,7 +102,17 @@ def main():
 
     if is_logged_in():
         # When logged in: only show actual app pages
-        page_names = ["Dashboard", "Upload Resume"]
+        page_names = [
+            "Dashboard", 
+            "My Profile", 
+            "Upload Resume", 
+            "Resume Analysis", 
+            "Skills Gap", 
+            "Resume Scoring", 
+            "Job Preferences", 
+            "Job Recommendations", 
+            "Suggestions"
+        ]
     else:
         # When logged out: only auth pages
         page_names = ["Login", "Register"]
@@ -100,34 +121,30 @@ def main():
     if st.session_state["current_page"] not in pages:
         st.session_state["current_page"] = "Login"
 
-    if is_logged_in() and st.session_state["current_page"] not in page_names + ["Profile"]:
+    if is_logged_in() and st.session_state["current_page"] not in page_names:
+        # If the current page isn't in the new list but we are logged in, default to Dashboard
+        # This handles the case where a user was on "AI Analysis" which is now "Resume Analysis"
         st.session_state["current_page"] = "Dashboard"
+        
     if (not is_logged_in()) and st.session_state["current_page"] not in page_names:
         st.session_state["current_page"] = "Login"
 
     current = st.sidebar.radio(
-        "Go to",
+        "Navigation", # Changed label to match screenshot "Navigation" style (though Streamlit radio label is usually above)
         page_names,
         index=page_names.index(st.session_state["current_page"])
         if st.session_state["current_page"] in page_names
         else 0,
     )
 
-    # Only change via sidebar if not currently on Profile
-    if st.session_state.get("current_page") != "Profile":
-        st.session_state["current_page"] = current
+    st.session_state["current_page"] = current
 
-    # === TOP RIGHT PROFILE BUTTON (only when logged in) ===
+    # === TOP RIGHT PROFILE BUTTON REMOVED (Moved to Sidebar) ===
     if is_logged_in():
         user = get_current_user()
-        top_col1, top_col2 = st.columns([6, 2])
-        with top_col1:
-            # Optional: small greeting on each page
-            st.markdown(f"###### 👋 Logged in as **{user['name']}**")
-        with top_col2:
-            if st.button("👤 Profile", key="profile_top_button"):
-                st.session_state["current_page"] = "Profile"
-                st.rerun()
+        # Optional: small greeting
+        st.sidebar.markdown(f"---")
+        st.sidebar.markdown(f"👋 Logged in as **{user['name']}**")
 
     # === RENDER CURRENT PAGE ===
     pages[st.session_state["current_page"]]()

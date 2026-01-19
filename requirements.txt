@@ -1,0 +1,12 @@
+python-dotenv
+langchain
+langchain-google-genai
+google-generativeai
+plotly
+streamlit
+bcrypt
+PyPDF2
+python-docx
+selenium
+webdriver-manager
+beautifulsoup4
