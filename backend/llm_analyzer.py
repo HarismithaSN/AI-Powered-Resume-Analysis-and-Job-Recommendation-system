@@ -48,7 +48,7 @@ class LLMAnalyzer:
                 # Use gemini-flash-latest (Verified available)
                 # Use gemini-1.5-flash (Standard stable model)
                 self.llm = ChatGoogleGenerativeAI(
-                    model="gemini-1.5-flash",
+                    model="gemini-flash-latest",
                     google_api_key=api_key,
                     temperature=temperature,
                     convert_system_message_to_human=True,

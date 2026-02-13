@@ -29,7 +29,7 @@ def test_key_raw():
 
     print(f"Testing Key: {key[:5]}...{key[-5:]}")
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={key}"
     headers = {'Content-Type': 'application/json'}
     data = {
         "contents": [{
