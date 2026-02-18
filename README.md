@@ -44,11 +44,11 @@ The system is designed to solve a critical real-world recruitment challenge: **m
 
 ### 1. Welcome & Authentication
 *The entry point of the application featuring secure user login and a clean interface.*
-![Home Screen](./Screenshots%20ai/home.jpg)
+![Home Screen](./Screenshot/home.jpg)
 
 ### 2. Resume Parsing & ATS Analysis
 *The AI extracts text from uploaded PDF/DOCX files and calculates an ATS compatibility score based on industry standards.*
-![Resume Upload](./Screenshots%20ai/resume.jpg)
+![Resume Upload](./Screenshots/resume.jpg)
 ![Scoring Logic](./Screenshots%20ai/score.jpg)
 
 ### 3. Skill Gap Detection & Recommendations
