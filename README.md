@@ -79,4 +79,4 @@ The system is designed to solve a critical real-world recruitment challenge: **m
 ---
 
 ## 👩‍💻 Author
-**Harismitha S N** *MCA Student | Dayananda Sagar College of Engineering* [LinkedIn](YOUR_LINKEDIN_URL_HERE) | [GitHub](YOUR_GITHUB_URL_HERE)
+**Harismitha S N** *MCA Student | Dayananda Sagar College of Engineering* 
