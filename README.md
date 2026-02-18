@@ -1,61 +1,79 @@
 🚀 AI-Powered Resume Analysis & Intelligent Job Recommendation System
 
-An AI-driven full-stack web application that analyzes resumes, detects skill gaps, and provides intelligent job recommendations using Large Language Models (LLMs).
+An AI-driven full-stack web application that analyzes resumes, identifies skill gaps, calculates ATS compatibility scores, and provides intelligent job recommendations using Large Language Models (LLMs).
 
-📌 Project Overview
+📌 About The Project
 
-This project was developed during the Infosys Springboard Virtual Internship 6.0 (8 Weeks).
+This project was developed as part of the Infosys Springboard Virtual Internship 6.0 (8 Weeks).
 
-The system automates resume evaluation by using AI to:
+The system is designed to solve a real-world recruitment problem —
+manual resume screening and inefficient job matching.
 
-Analyze resume content
+Instead of traditional evaluation, the platform uses AI-powered structured analysis to generate:
 
-Identify strengths & weaknesses
+Clear strength & weakness insights
 
-Calculate ATS compatibility score
+Section-wise resume scoring
 
-Detect missing or in-demand skills
+Skill gap detection
 
-Recommend personalized job opportunities
+Personalized learning suggestions
 
-It replaces manual resume screening with structured, data-driven AI insights.
+Intelligent resume–job match recommendations
 
-✨ Key Features
+✨ Core Features
 
-🔐 Secure User Authentication (bcrypt hashing)
-📄 Resume Upload (PDF / DOCX support)
-🤖 AI-Powered Resume Analysis
-📊 Resume Scoring & Section-wise Breakdown
-🎯 ATS Compatibility Check
-🧠 Advanced Skill Gap Analysis
-📚 Learning Recommendations
-🌐 Job Scraping using Selenium
-🎯 Intelligent Resume–Job Match Score
-📌 Personalized Job Recommendations
+Secure User Authentication with bcrypt password hashing
 
-🛠️ Tech Stack
-Layer	Technology Used
-Frontend	Streamlit
-Backend	Python
-AI & NLP	LangChain + Large Language Models (LLMs)
-Web Scraping	Selenium
-Database	MongoDB / SQLite
-Security	bcrypt password hashing
-File Processing	PyPDF2, python-docx
-⚙️ System Workflow
+Resume Upload (PDF & DOCX supported)
 
-1️⃣ User registers & logs in securely
-2️⃣ Resume is uploaded (PDF/DOCX)
-3️⃣ Text extraction is performed
-4️⃣ LLM analyzes resume using structured prompts
-5️⃣ Resume score & skill gaps are calculated
-6️⃣ Job listings are scraped dynamically
-7️⃣ Resume–job relevance score is computed
-8️⃣ Personalized job recommendations are displayed
+AI-based Resume Content Analysis
 
-🧠 Core Highlights
+ATS Compatibility Score Calculation
 
-Structured prompt engineering for consistent AI output
+Section-wise Score Breakdown
+
+Advanced Skill Gap Analysis
+
+Personalized Learning Recommendations
+
+Dynamic Job Scraping using Selenium
+
+Intelligent Resume–Job Match Percentage
+
+Personalized Job Recommendations Dashboard
+
+🛠 Tech Stack
+
+Frontend: Streamlit
+Backend: Python
+AI & NLP: LangChain + Large Language Models (LLMs)
+Web Scraping: Selenium
+Database: MongoDB / SQLite
+Security: bcrypt (secure password hashing)
+File Processing: PyPDF2, python-docx
+
+⚙️ How It Works
+
+Step 1: User registers and logs in securely
+Step 2: Resume is uploaded (PDF/DOCX)
+Step 3: Text is extracted and cleaned
+Step 4: LLM analyzes resume using structured prompt engineering
+Step 5: System generates:
+
+Resume score
+
+Strengths & weaknesses
+
+Skill gap insights
+
+Step 6: Job listings are scraped dynamically
+Step 7: Resume–job relevance score is calculated
+Step 8: Personalized job recommendations are displayed
+
+🧠 Technical Highlights
+
+Structured Prompt Engineering for consistent AI outputs
 
 JSON-based response parsing for scalability
 
@@ -65,26 +83,31 @@ Deduplication logic for scraped job listings
 
 Exception handling & retry logic for API stability
 
-Secure handling of sensitive user data
+Secure session management & data protection
 
 📈 Real-World Impact
 
-✔ Helps job seekers improve resume quality
-✔ Reduces manual screening effort for recruiters
-✔ Bridges skill gaps with learning suggestions
-✔ Provides objective and scalable AI-driven evaluation
+Helps candidates improve resume quality strategically
 
-🏗️ Future Enhancements
+Reduces recruiter workload through automated evaluation
 
-Real-time LinkedIn API integration
+Bridges skill gaps with actionable learning suggestions
 
-Email-based job alerts
+Provides scalable, objective, AI-driven recruitment support
 
-Resume version tracking
+🎯 Key Learnings
 
-Multi-role skill benchmarking
+End-to-end AI-integrated full-stack development
+
+Practical experience with LLMs & LangChain workflows
+
+Resume–job matching algorithm design
+
+Secure authentication & structured data handling
+
+Real-world problem solving with scalable architecture
 
 👩‍💻 Author
 
 Harismitha S N
-MCA Student
+MCA Student |
