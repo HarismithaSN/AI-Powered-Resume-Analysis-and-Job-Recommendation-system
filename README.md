@@ -40,6 +40,26 @@ The system is designed to solve a critical real-world recruitment challenge: **m
 | **File Processing** | PyPDF2, python-docx |
 
 ---
+## 📸 Project Walkthrough
+
+### 1. Welcome & Authentication
+*The entry point of the application featuring secure user login and a clean interface.*
+![Home Screen](./Screenshots%20ai/home.jpg)
+
+### 2. Resume Parsing & ATS Analysis
+*The AI extracts text from uploaded PDF/DOCX files and calculates an ATS compatibility score based on industry standards.*
+![Resume Upload](./Screenshots%20ai/resume.jpg)
+![Scoring Logic](./Screenshots%20ai/score.jpg)
+
+### 3. Skill Gap Detection & Recommendations
+*Detailed analysis of missing technical skills and soft skills, paired with personalized learning paths.*
+![Skill Analysis](./Screenshots%20ai/skill.jpg)
+![Learning Path](./Screenshots%20ai/skill1.jpg)
+
+### 4. Intelligent Job Recommendations
+*Dynamic job scraping integrated with an LLM-powered matching engine to show the most relevant opportunities.*
+![Job Recommendations](./Screenshots%20ai/job.jpg)
+![Match Comparison](./Screenshots%20ai/com-j.jpg)
 
 ## ⚙️ How It Works
 
